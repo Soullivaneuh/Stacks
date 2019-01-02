@@ -61,6 +61,13 @@ module.exports = function(grunt) {
                 }
             }
         },
+        babel: {
+            stacks_js: {
+                files: {
+                    'dist/js/stacks.js': 'dist/js/stacks.js'
+                }
+            }
+        },
         rollup: {
             options: {
                 plugins: [require('rollup-plugin-node-resolve')(), require('rollup-plugin-commonjs')()],
@@ -94,7 +101,8 @@ module.exports = function(grunt) {
                     'dist/js/stacks.js': [
                         'node_modules/stimulus/dist/stimulus.umd.js',
                         'lib/js/stacks.js',
-                        'lib/js/controllers/**/*.js'
+                        'lib/js/controllers/**/*.js',
+                        'lib/js/controllers/**/*.jsx',
                     ]
                 }
             }
@@ -115,7 +123,7 @@ module.exports = function(grunt) {
             },
 
             stacks_js: {
-                files: ['lib/js/**/*.js'], // note: this doesn't watch any of the npm dependencies
+                files: ['lib/js/**/*.js', 'lib/js/**/*.jsx'], // note: this doesn't watch any of the npm dependencies
                 tasks: ['concurrent:compile_stacks_js', 'copy:js2docs']
             }
         },
@@ -138,7 +146,7 @@ module.exports = function(grunt) {
 
             // Stacks JS itself and the polyfills are independent of each other, so they can be compiled in parallel
             compile_stacks_js: [
-                ['concat:stacks_js', 'uglify:stacks_js'],
+                ['concat:stacks_js', 'babel:stacks_js', 'uglify:stacks_js'],
                 ['rollup:stacks_js_polyfills', 'uglify:stacks_js_polyfills']
             ],
 
@@ -198,6 +206,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-rollup');
+    grunt.loadNpmTasks('grunt-babel');
 
     // Default task
     grunt.registerTask('default',
@@ -211,3 +220,4 @@ module.exports = function(grunt) {
     grunt.registerTask('update-icons', ['clean:icons', 'copy:svgs', 'copy:data']);
 
 };
+
