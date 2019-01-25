@@ -16,7 +16,7 @@ module.exports = function(grunt) {
                 }
             },
             jekyllServe: {
-                command: 'bundle exec jekyll serve',
+                command: 'bundle exec jekyll serve --incremental',
                 options: {
                     stderr: false,
                     execOptions: {
@@ -103,6 +103,7 @@ module.exports = function(grunt) {
                         'lib/js/stacks.js',
                         'lib/js/controllers/**/*.js',
                         'lib/js/controllers/**/*.jsx',
+                        'lib/js/finalize.js'
                     ]
                 }
             }

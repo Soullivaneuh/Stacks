@@ -1,6 +1,6 @@
 /*
-Stimulus 1.1.0
-Copyright © 2018 Basecamp, LLC
+Stimulus 1.1.1
+Copyright © 2019 Basecamp, LLC
  */
 (function (global, factory) {
   typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : factory(global.Stimulus = {});
@@ -2113,8 +2113,9 @@ Copyright © 2018 Basecamp, LLC
 ;
 
 (function () {
-  var application = Stimulus.Application.start();
   window.Stacks = window.Stacks || Object.create(null);
+  Stacks._initializing = true;
+  var application = Stacks.stimulusApplication = Stimulus.Application.start();
   Stacks.controllers = Object.create(null);
 
   function StacksController() {
@@ -2171,7 +2172,7 @@ Copyright © 2018 Basecamp, LLC
           enumerable: false
         });
       } else {
-        Controller.prototype[prop] = data[prop];
+        Object.defineProperty(Controller.prototype, prop, Object.getOwnPropertyDescriptor(data, prop));
       }
     }
 
@@ -2179,13 +2180,22 @@ Copyright © 2018 Basecamp, LLC
   }
 
   Stacks.addController = function addController(name, data) {
-    if (!/^s-/.test(name)) {
+    var hasPrefix = /^s-/.test(name);
+
+    if (Stacks._initializing && !hasPrefix) {
       throw "Stacks-created Stimulus controller names must start with \"s-\".";
+    }
+
+    if (!Stacks._initializing && hasPrefix) {
+      throw "The \"s-\" prefix on Stimulus controller names is reserved for Stacks-created controllers.";
     }
 
     var Controller = createController(name, data);
     application.register(name, Controller);
-    Stacks.controllers[name] = Controller;
+
+    if (Stacks._initializing) {
+      Stacks.controllers[name] = Controller;
+    }
   };
 
   Stacks.el = function (tag, props) {
@@ -2426,4 +2436,10 @@ Copyright © 2018 Basecamp, LLC
       this.element.appendChild(Stacks.el("b", null, "Hello!"));
     }
   });
+})();
+
+;
+
+(function () {
+  delete Stacks._initializing;
 })();
